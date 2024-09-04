@@ -1,0 +1,4 @@
+{
+	"registry-mirrors": ["http://172.18.48.9:5000"],
+	"default-address-pools": [{ "base": "172.20.0.0/16", "size": 24 }]
+}
