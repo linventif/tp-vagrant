@@ -61,7 +61,7 @@ Vagrant.configure("2") do |config|
   # View the documentation for the provider you are using for more
   # information on available options.
 
+  config.vm.provision "file", source: "daemon.json", destination: "/home/vagrant/daemon.json"
   config.vm.provision "shell", path: "provision.sh"
-  config.vm.provision "file", source: "daemon.json", destination: "/etc/docker/daemon.json"
   config.vm.synced_folder "#{ENV['HOME']}", "/iut_home"
 end
