@@ -18,29 +18,46 @@ Vagrant.configure("2") do |config|
   config.vm.synced_folder "#{ENV['HOME']}", "/iut_home"
 
   # Définition du nom des machines virtuelles
+
   # VM1
   config.vm.define "vm1" do |vm1|
-    vm1.vm.network "private_network", ip: "192.168.62.10"
+    vm1.vm.network "private_network", ip: "192.168.56.10"
     vm1.vm.hostname = "vm1"
     vm1.vm.provision "shell", path: "provision-vm1.sh"
     vm1.vm.network "forwarded_port", guest: 80, host: 8081
+    vm1.vm.provision "shell", inline: <<-SHELL
+      ip route add 255.255.255.0 via 192.168.56.0/24 dev eth1
+      echo "192.168.56.11 vm2" >> /etc/hosts
+    SHELL
   end
+
   # VM2
   config.vm.define "vm2" do |vm2|
-    vm2.vm.network "private_network", ip: "192.168.62.11"
+    vm2.vm.network "private_network", ip: "192.168.56.11"
+    vm2.vm.network "private_network", ip: "192.168.57.11"
     vm2.vm.hostname = "vm2"
     vm2.vm.provision "shell", path: "provision-vm2.sh"
     vm2.vm.network "forwarded_port", guest: 80, host: 8082
+    vm2.vm.provision "shell", inline: <<-SHELL
+      ip route add 255.255.255.0 via 192.168.57.0/24 dev eth1
+      ip route add 255.255.255.0 via 192.168.56.0/24 dev eth1
+      echo "192.168.56.10 vm1" >> /etc/hosts
+      echo "192.168.57.12 vm3" >> /etc/hosts
+      echo "1" > /proc/sys/net/ipv4/ip_forward
+    SHELL
   end
 
-
-  config.vm.provision "shell", inline: <<-SHELL
-    # Provisioning the /etc/hosts
-    echo "192.168.62.10 vm1" >> /etc/hosts
-    echo "192.168.62.11 vm2" >> /etc/hosts
-    # Provisioning the routing
-    ip route add 255.255.255.0 via 192.168.62.0/24 dev eth1
-  SHELL
+  # VM3
+  config.vm.define "vm3" do |vm3|
+    vm3.vm.network "private_network", ip: "192.168.57.12"
+    vm3.vm.hostname = "vm3"
+    vm3.vm.provision "shell", path: "provision-vm3.sh"
+    vm3.vm.network "forwarded_port", guest: 80, host: 8083
+    vm3.vm.provision "shell", inline: <<-SHELL
+      ip route add 255.255.255.0 via 192.168.57.0/24 dev eth1
+      echo "192.168.57.11 vm2" >> /etc/hosts
+    SHELL
+  end
 end
 
 <<EOF
@@ -123,5 +140,23 @@ apt-get install -y apache2
 apt-get update
 apt-get install -y nginx
 ```
+
+## Exercice 3 :Utilisation de plusieurs machines sur plusieurs réseaux
+
+1. Créer un projet vagrant constitué de 3 VM et de 2 réseaux privés selon la répartition suivante:
+    Réseau A: 192.168.56.0/24
+    Réseau B: 192.168.57.0/24
+    VM1 doit appartenir au réseau A
+    VM2 doit appartenir au réseau A et au réseau B
+    VM3 doit appartenir au réseau B
+2. Comme précédemment, ajouter un provisionnement pour que toutes les machines puissent se joindre en utilisant leur nom (vm1, vm2, vm3 dans le fichier /etc/hosts). Les noms d’hôte des trois machines doivent être respectivement vm1, vm2, vm3. Le nom vm2 doit résoudre avec l’adresse IP du routeur dans le réseau correspondant. C’est à dire:
+    sur vm1, le nom vm2 pointe sur 192.168.56.xx
+    sur vm3, le nom vm2 pointe sur 192.168.57.xx
+    sur vm2, le nom vm2 pointe arbitrairement sur l’une ou l’autre des adresses
+3. Ajouter le provisionnement nécessaire de façon à ce que la VM2 agisse comme un routeur permettant à la VM1 et la VM3 de communiquer (souvenez vous de R3.06)
+4. Tester votre configuration à l’aide de la commande traceroute, s’assurer que le routeur utilisé est bien VM2
+5. Redémarrer les machines à l’aide vagrant reload et tester à nouveau la configuration du routage avec traceroute. Que se passe-t’il ?
+
+6. Corriger le provisionnement de façon à ce que la configuration de routage soit appliquée à chaque démarrage des VM
 
 EOF
