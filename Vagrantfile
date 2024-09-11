@@ -1,8 +1,4 @@
 Vagrant.configure("2") do |config|
-  # Définition du nom de la machine virtuelle et de son alias
-  config.vm.hostname = "vag-debian"
-  config.vm.define "vag-debian"
-
   # La boîte à utiliser pour créer la machine virtuelle
   config.vm.box = "debian/bookworm64"
 
@@ -12,9 +8,6 @@ Vagrant.configure("2") do |config|
     vb.cpus = 2
   end
 
-  # Configuration du réseau
-  config.vm.network "private_network", ip: "192.168.62.10"
-
   # Envoi du fichier daemon.json
   config.vm.provision "file", source: "daemon.json", destination: "/home/vagrant/daemon.json"
 
@@ -23,6 +16,31 @@ Vagrant.configure("2") do |config|
 
   # Partage du répertoire de l'utilisateur
   config.vm.synced_folder "#{ENV['HOME']}", "/iut_home"
+
+  # Définition du nom des machines virtuelles
+  # VM1
+  config.vm.define "vm1" do |vm1|
+    vm1.vm.network "private_network", ip: "192.168.62.10"
+    vm1.vm.hostname = "vm1"
+    vm1.vm.provision "shell", path: "provision-vm1.sh"
+    vm1.vm.network "forwarded_port", guest: 80, host: 8081
+  end
+  # VM2
+  config.vm.define "vm2" do |vm2|
+    vm2.vm.network "private_network", ip: "192.168.62.11"
+    vm2.vm.hostname = "vm2"
+    vm2.vm.provision "shell", path: "provision-vm2.sh"
+    vm2.vm.network "forwarded_port", guest: 80, host: 8082
+  end
+
+
+  config.vm.provision "shell", inline: <<-SHELL
+    # Provisioning the /etc/hosts
+    echo "192.168.62.10 vm1" >> /etc/hosts
+    echo "192.168.62.11 vm2" >> /etc/hosts
+    # Provisioning the routing
+    ip route add 255.255.255.0 via 192.168.62.0/24 dev eth1
+  SHELL
 end
 
 <<EOF
@@ -84,11 +102,26 @@ Créer un projet vagrant définissant 2 machines virtuelles respectant les contr
 
 1. Toutes les VM doivent être dans le réseau privé 192.168.62.0/24
 2. Le nom d’hôte des deux VM doivent être respectivement vm1 et vm2 Pour vérifier que vous avez utilisé la bonne configuration, le prompt du shell sur vm1 doit être
-```shell
-vagrant@vm1:~$
-```
 3. À l’aide d’un provisionnement de type de type shell, configurer le fichier /etc/hosts de la machine virtuelle de façon à ce que les VM puissent se joindre (tester avec la commande ping) à l’aide de leur nom (et pas seulement de leur adresse IP)
+# Provisioning the /etc/hosts and routing
+config.vm.provision "shell", inline: <<-SHELL
+  # Provisioning the /etc/hosts
+  echo "192.168.62.10 vm1" >> /etc/hosts
+  echo "192.168.62.11 vm2" >> /etc/hosts
+  # Provisioning the routing
+  ip route add 255.255.255.0 via 192.168.62.0/24 dev eth1
+SHELL
 4.Sur la première machine virtuelle, installer (à l’aide d’un provisionnement) un serveur web apache. Sur la deuxième, installer (toujours avec un provisionnement), le serveur web nginx. Attention, vous devez utiliser un provisionnement différent sur chacune des VM. Le serveur apache et le serveur nginx doivent être accessibles à l’aide d’une connexion sur la machine physique (redirection de ports)
+# Provisioning the VM1
+```shell
+apt-get update
+apt-get install -y apache2
+```
 
+# Provisioning the VM2
+```shell
+apt-get update
+apt-get install -y nginx
+```
 
 EOF
