@@ -19,44 +19,73 @@ Vagrant.configure("2") do |config|
 
   # Définition du nom des machines virtuelles
 
-  # VM1
-  config.vm.define "vm1" do |vm1|
-    vm1.vm.network "private_network", ip: "192.168.56.10"
-    vm1.vm.hostname = "vm1"
-    vm1.vm.provision "shell", path: "provision-vm1.sh"
-    vm1.vm.network "forwarded_port", guest: 80, host: 8081
-    vm1.vm.provision "shell", inline: <<-SHELL
-      ip route add 255.255.255.0 via 192.168.56.0/24 dev eth1
-      echo "192.168.56.11 vm2" >> /etc/hosts
-    SHELL
+  # # VM1
+  # config.vm.define "vm1" do |vm1|
+  #   vm1.vm.network "private_network", ip: "192.168.56.10"
+  #   vm1.vm.hostname = "vm1"
+  #   vm1.vm.provision "shell", path: "provision-vm1.sh"
+  #   vm1.vm.network "forwarded_port", guest: 80, host: 8081
+  #   vm1.vm.provision "shell", inline: <<-SHELL
+  #     ip route add 255.255.255.0 via 192.168.56.0/24 dev eth1
+  #     echo "192.168.56.11 vm2" >> /etc/hosts
+  #   SHELL
+  # end
+
+  # # VM2
+  # config.vm.define "vm2" do |vm2|
+  #   vm2.vm.network "private_network", ip: "192.168.56.11"
+  #   vm2.vm.network "private_network", ip: "192.168.57.11"
+  #   vm2.vm.hostname = "vm2"
+  #   vm2.vm.provision "shell", path: "provision-vm2.sh"
+  #   vm2.vm.network "forwarded_port", guest: 80, host: 8082
+  #   vm2.vm.provision "shell", inline: <<-SHELL
+  #     ip route add 255.255.255.0 via 192.168.57.0/24 dev eth1
+  #     ip route add 255.255.255.0 via 192.168.56.0/24 dev eth1
+  #     echo "192.168.56.10 vm1" >> /etc/hosts
+  #     echo "192.168.57.12 vm3" >> /etc/hosts
+  #     echo "1" > /proc/sys/net/ipv4/ip_forward
+  #   SHELL
+  # end
+
+  # # VM3
+  # config.vm.define "vm3" do |vm3|
+  #   vm3.vm.network "private_network", ip: "192.168.57.12"
+  #   vm3.vm.hostname = "vm3"
+  #   vm3.vm.provision "shell", path: "provision-vm3.sh"
+  #   vm3.vm.network "forwarded_port", guest: 80, host: 8083
+  #   vm3.vm.provision "shell", inline: <<-SHELL
+  #     ip route add 255.255.255.0 via 192.168.57.0/24 dev eth1
+  #     echo "192.168.57.11 vm2" >> /etc/hosts
+  #   SHELL
+  # end
+
+  # Liste des machines
+  machines = [
+    # wheezy : 192.168.58.13
+    # squeeze : 192.168.58.17
+    # lenny : 192.168.58.22
+    # etch : 192.168.58.54
+    # woody : 192.168.58.78
+    {name: "wheezy", ip: "192.168.58.13"},
+    {name: "squeeze", ip: "192.168.58.17"},
+    {name: "lenny", ip: "192.168.58.22"},
+    {name: "etch", ip: "192.168.58.54"},
+    {name: "woody", ip: "192.168.58.78"},
+  ]
+
+  etcHosts = ""
+  machines.each do |machine|
+    etcHosts += "#{machine[:ip]} #{machine[:name]}\n"
   end
 
-  # VM2
-  config.vm.define "vm2" do |vm2|
-    vm2.vm.network "private_network", ip: "192.168.56.11"
-    vm2.vm.network "private_network", ip: "192.168.57.11"
-    vm2.vm.hostname = "vm2"
-    vm2.vm.provision "shell", path: "provision-vm2.sh"
-    vm2.vm.network "forwarded_port", guest: 80, host: 8082
-    vm2.vm.provision "shell", inline: <<-SHELL
-      ip route add 255.255.255.0 via 192.168.57.0/24 dev eth1
-      ip route add 255.255.255.0 via 192.168.56.0/24 dev eth1
-      echo "192.168.56.10 vm1" >> /etc/hosts
-      echo "192.168.57.12 vm3" >> /etc/hosts
-      echo "1" > /proc/sys/net/ipv4/ip_forward
-    SHELL
-  end
-
-  # VM3
-  config.vm.define "vm3" do |vm3|
-    vm3.vm.network "private_network", ip: "192.168.57.12"
-    vm3.vm.hostname = "vm3"
-    vm3.vm.provision "shell", path: "provision-vm3.sh"
-    vm3.vm.network "forwarded_port", guest: 80, host: 8083
-    vm3.vm.provision "shell", inline: <<-SHELL
-      ip route add 255.255.255.0 via 192.168.57.0/24 dev eth1
-      echo "192.168.57.11 vm2" >> /etc/hosts
-    SHELL
+  machines.each do |machine|
+    config.vm.define machine[:name] do |config|
+      config.vm.network "private_network", ip: machine[:ip]
+      config.vm.hostname = machine[:name]
+      config.vm.provision "shell", inline: <<-SHELL
+        echo "#{etcHosts}" >> /etc/hosts
+      SHELL
+    end
   end
 end
 
@@ -158,5 +187,21 @@ apt-get install -y nginx
 5. Redémarrer les machines à l’aide vagrant reload et tester à nouveau la configuration du routage avec traceroute. Que se passe-t’il ?
 
 6. Corriger le provisionnement de façon à ce que la configuration de routage soit appliquée à chaque démarrage des VM
+
+## Exercice 4 : Création « massive » de VM
+
+Le fichier Vagrantfile est un fichier en langage ruby. Vous pouvez donc, dans une certaine mesure, vous faciliter l’écriture à l’aide de structures de contrôle ruby (boucle, variables, tableaux…).
+
+Créer un projet vagrant, permettant de démarrer 5 VM dont les noms et les adresses IP dans un réseau privé seront:
+
+    wheezy : 192.168.58.13
+    squeeze : 192.168.58.17
+    lenny : 192.168.58.22
+    etch : 192.168.58.54
+    woody : 192.168.58.78
+
+De plus, toutes les machines devront avoir leur fichier /etc/hosts configuré de façon à ce qu’elles puissent se joindre en utilisant leur nom.
+
+Afin de réaliser cet configuration, vous devez utiliser les possibilités du langage. Il ne faudra pas déclarer à la main les 5 machines.
 
 EOF
