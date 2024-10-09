@@ -1,4 +1,0 @@
-#cloud-config
-password: $6$sJKeKIAnF84a15W.$0k2J2wAw.TwJd1dViDyI1KxsR.hZXtqDLWqdsbCCACPKqGUjqRImjZsV2wsxnt1Sol.AoW9bGnjDow7k6AJm90
-chpasswd:
-  expire: False
