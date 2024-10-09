@@ -4,3 +4,21 @@ chpasswd:
     expire: False
 ssh_authorized_keys:
     - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDgj25aWTBAyx1WXJ5Zn8Y58cheJ5sa/dLajok+Sr43VUS+zj9O/sWxNXKZXvHH7Hvxv+CEgb2qNxWYzymkG4DcqNF1DZMlswF+rjgxyO1yK55g5+MS/cz1HDsGVAHOq8Ir8YHZNbTKyEwjROyFOoedKiOEUrS784ecQz94bTT8Otn5nDv8DY02Q4a2nJbPIPyroaNeOT594FT5xg+zz92+22JT25QB83LvMYRdrgultc5M1UmINg3H81YcCH43msvlieFTyW9HCYcLHCVFV0xwZovK0oEKvAYkKHZup0fhKbuwzTNvf8v7rvKHSjBXotJzCDOzf6tWlEzUvBUw9QdajHi1jXeFbJZzAtWmsYY3Q9y9O8U4PtKK7/OAgVcZYuRQ6QtpOjGCFr5Ee5+zcBq8XKVtARqzYL/Miv0y9mZuKuNu0wHTl2RkF+WBYdFH7ku5uWxQljqME0u4/Fg8ZzL6DuH7LBufnjnxg0oIj1lANYSm4T+Y98fEhhFMkL7I07DxNCmjFU9R+JRtA5qRgldvnyCA86W+zaWOWU7LJS/wUSiMJ1po3UzZNX9CLgX+TF77W+nKW/jMoL7lVidvnhQA388WwMECl6sHolbp9Y4Qtq/xqJR6RFb5WMm0yvGfDREB4U6hdCYoo2evDNfl/Zgu8wAOXGY/kKVm3EMZIsxB2Q== linventif@guiska
+
+ntp:
+    servers:
+        - ntp.univ-lille.fr
+
+packages:
+    - vim
+    - less
+    - net-tools
+    - dnsutils
+
+package_update: true
+package_upgrade: true
+package_reboot_if_required: true
+
+hostname: vm1
+
+timezone: Europe/Paris
