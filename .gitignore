@@ -1,3 +1,5 @@
 .vagrant
 *.qcow2
 *.img
+*.etu-openrc.sh
+*terraform*

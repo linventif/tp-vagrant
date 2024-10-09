@@ -19,6 +19,8 @@ Vagrant.configure("2") do |config|
 
   # Définition du nom des machines virtuelles
 
+  # Connection a la machine virtuelle: vagrant ssh vm1
+
   # # VM1
   # config.vm.define "vm1" do |vm1|
   #   vm1.vm.network "private_network", ip: "192.168.56.10"
@@ -105,23 +107,23 @@ ip a
 #     link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
 #     inet 127.0.0.1/8 scope host lo
 #        valid_lft forever preferred_lft forever
-#     inet6 ::1/128 scope host noprefixroute 
+#     inet6 ::1/128 scope host noprefixroute
 #        valid_lft forever preferred_lft forever
 # 2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP group default qlen 1000
 #     link/ether 08:00:27:8d:c0:4d brd ff:ff:ff:ff:ff:ff
 #     altname enp0s3
 #     inet 10.0.2.15/24 brd 10.0.2.255 scope global dynamic eth0
 #        valid_lft 85967sec preferred_lft 85967sec
-#     inet6 fe80::a00:27ff:fe8d:c04d/64 scope link 
+#     inet6 fe80::a00:27ff:fe8d:c04d/64 scope link
 #        valid_lft forever preferred_lft forever
 # 3: eth1: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP group default qlen 1000
 #     link/ether 08:00:27:dd:61:b0 brd ff:ff:ff:ff:ff:ff
 #     altname enp0s8
 #     inet 192.168.62.10/24 brd 192.168.62.255 scope global eth1
 #        valid_lft forever preferred_lft forever
-#     inet6 fe80::a00:27ff:fedd:61b0/64 scope link 
+#     inet6 fe80::a00:27ff:fedd:61b0/64 scope link
 #        valid_lft forever preferred_lft forever
-# 5: docker0: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc noqueue state DOWN group default 
+# 5: docker0: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc noqueue state DOWN group default
 #     link/ether 02:42:4d:d0:c2:d8 brd ff:ff:ff:ff:ff:ff
 #     inet 172.20.0.1/24 brd 172.20.0.255 scope global docker0
 #        valid_lft forever preferred_lft forever
